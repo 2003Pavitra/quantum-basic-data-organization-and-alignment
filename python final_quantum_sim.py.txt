@@ -1,0 +1,67 @@
+# ==============================================================================
+# STEP 1: Initialization and Imports
+# ==============================================================================
+# Import necessary Qiskit components and visualization tools
+import numpy as np
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import AerSimulator
+from qiskit.visualization import plot_histogram
+import matplotlib.pyplot as plt
+
+# ==============================================================================
+# STEP 2: Circuit Setup (2 Qubits, 2 Classical Bits)
+# ==============================================================================
+# Creates a circuit with 2 quantum registers (qubits) and 2 classical registers (bits)
+qc = QuantumCircuit(2, 2)
+
+print("--------------------------------------------------")
+print("Initial Circuit Diagram (All qubits are |0>):")
+print(qc.draw('text'))
+
+# ==============================================================================
+# STEP 3: Data Alignment and Entanglement (Bell State Creation)
+# ==============================================================================
+
+# 3. Apply a Hadamard gate (H) to the first qubit (index 0). 
+#    This creates superposition: the data is now both |0> and |1>.
+qc.h(0) 
+
+# 4. Apply a CNOT gate with control on qubit 0 and target on qubit 1.
+#    This *entangles* the two qubits, aligning their outcomes (correlation).
+qc.cx(0, 1)
+
+# Display the circuit with the gates
+print("\nCircuit with Gates Applied:")
+print(qc.draw('text', idle_wires=False))
+
+# ==============================================================================
+# STEP 4: Measurement and Simulation
+# ==============================================================================
+
+# 5. Measure the quantum bits and store the results in the classical bits
+qc.measure([0, 1], [0, 1]) 
+
+# 6. Select the Aer simulator backend
+simulator = AerSimulator()
+
+# 7. Compile and run the circuit 1024 times (shots)
+compiled_circuit = transpile(qc, simulator)
+job = simulator.run(compiled_circuit, shots=1024)
+result = job.result()
+
+# ==============================================================================
+# STEP 5: Analyze and Visualize Results
+# ==============================================================================
+
+# 8. Get the measurement outcomes (counts)
+counts = result.get_counts(qc)
+
+# 9. Print the results (The data organization output)
+print("\nFinal Data Organization (Measurement Outcomes):")
+print(counts)
+print("Expected result: Outcomes '00' and '11' should dominate (~50% each), showing perfect correlation.")
+print("--------------------------------------------------")
+
+# 10. Visualize the results as a histogram
+plot_histogram(counts, title="Bell State Qubit Alignment Results")
+plt.show() # This command displays the plot window
